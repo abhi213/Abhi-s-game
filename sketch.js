@@ -1,15 +1,16 @@
 var bird, birdImage;
 var  bg, bgImage;
 var pillar, pillarImage;
-var gameState = "PLAY";
+var gameState = "START";
 var score = 0;
 var survivalTime = 0;
 var survivaldisplay = 0;
 var x1 = 0;
 var x2; 
-var scrollSpeed = 2;
+var scrollSpeed = 0;
 var foodImage;
 var eagleImage;
+var life = 5;
 
 function preload(){
   birdImage = loadImage("bird.png");
@@ -39,24 +40,25 @@ function setup(){
 function draw(){
   background(0);
   image(bgImage, x1, 0, width, height);
-   image(bgImage, x2, 0, width, height);
-    x1 -= scrollSpeed;
-    x2 -= scrollSpeed;
-   if (x1 < -width){
-      x1 = width;
-   }
-   if (x2 < -width){ 
-     x2 = width;
-   }
-  
+  image(bgImage, x2, 0, width, height);
+   x1 -= scrollSpeed;
+   x2 -= scrollSpeed;
+  if (x1 < -width){
+     x1 = width;
+  }
+  if (x2 < -width){ 
+    x2 = width;
+  } 
   drawSprites();
-  console.log(gameState);
-  console.log("bird.y", bird.y);
-  bird.debug = true;
+  if(keyDown("space") && gameState === "START"){
+    gameState = "PLAY"
+    scrollSpeed = 2;
+  }
   textSize(20);
   fill("black");
   text("Survival Time : " + survivaldisplay, 800, 100);
   text("Score : " + score, 100, 100);
+  text("life : " + life, 500, 100);
   if( gameState === "PLAY"){
     survivalTime = survivalTime + 0.1;
     survivaldisplay = Math.round(survivalTime);
@@ -78,15 +80,22 @@ function draw(){
   if(score > 2){
     spawnEagle();
       if(bird.isTouching(eagleGroup)){
-        gameState = "END";
+        life = life - 1;
+        gameState = "START";
+        bird.velocityY = 0;
       }
   }
 
   if(bird.isTouching(obstacleGroup)|| bird.y > 700){
-    gameState = "END";
+    life = life - 1;
+    gameState = "START";
+    bird.velocityY = 0;
   }
   spawnObstacles();
   spawnFood();
+  if (life <= 0 ){
+    gameState = "END";
+  }
   }else if(gameState === "END"){
     bird.velocityY = 0;
     scrollSpeed = 0;
